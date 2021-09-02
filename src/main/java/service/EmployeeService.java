@@ -1,7 +1,6 @@
 package service;
 
 import models.Employee;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,15 +13,17 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.coyote.http11.Constants.a;
-
 @Service
+@Transactional
 public class EmployeeService {
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
+
+    public EmployeeService(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
 
     public List<Employee> getAllEmployees() {
-        //return List.of(new Employee("lam","vinh","tuong", "tuonglam53@gmail.com", LocalDate.of(1998, Month.DECEMBER,21)));
         return employeeRepository.findAll();
     }
 
@@ -42,7 +43,7 @@ public class EmployeeService {
             throw new IllegalStateException("Employee is not exist");
         }
     }
-    @Transactional
+
     public void updateEmployee(Long id, String firstName, String middleName, String lastName, String email, LocalDate dob, Integer gender) {
         Pattern p = Pattern.compile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", Pattern.CASE_INSENSITIVE);
         boolean validEmail;
@@ -82,5 +83,13 @@ public class EmployeeService {
             employee.setGender(gender);
         }
         employeeRepository.save(employee);
+    }
+
+    public Employee getEmployeeById(Long id) {
+        Optional<Employee> employeeOptional = this.employeeRepository.findById(id);
+        if (!employeeOptional.isPresent()) {
+            throw new IllegalStateException("Employee is not exist");
+        }
+        return employeeOptional.get();
     }
 }

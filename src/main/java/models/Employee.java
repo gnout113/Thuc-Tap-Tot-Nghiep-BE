@@ -1,23 +1,16 @@
 package models;
 
-import constant.GenderEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
 @Table
-public class Employee {
+public class Employee implements Serializable {
     @Id
-    @SequenceGenerator(
-            name = "employee_sequence",
-            sequenceName = "employee_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "employee_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String firstName;
     private String middleName;
@@ -26,15 +19,20 @@ public class Employee {
     private LocalDate dob;
     private Integer gender;
 
+    @OneToOne(mappedBy = "employee")
+    @JsonIgnore
+    private AppUser appUser;
+
     public Employee() {
     }
 
-    public Employee(String firstName, String middleName, String lastName, String email, LocalDate dob) {
+    public Employee(String firstName, String middleName, String lastName, String email, LocalDate dob, Integer gender) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.email = email;
         this.dob = dob;
+        this.gender = gender;
     }
 
     public Long getId() {
@@ -89,6 +87,10 @@ public class Employee {
         this.gender = gender;
     }
 
+    public AppUser getAppUser() {
+        return appUser;
+    }
+
     @Override
     public String toString() {
         return "Employee{" +
@@ -99,6 +101,7 @@ public class Employee {
                 ", email='" + email + '\'' +
                 ", dob=" + dob +
                 ", gender=" + gender +
+                ", appUser=" + appUser +
                 '}';
     }
 }
